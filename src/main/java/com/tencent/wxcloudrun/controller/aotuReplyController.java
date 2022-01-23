@@ -31,7 +31,7 @@ public class aotuReplyController {
    * @param timestamp : 时间戳
    * @param nonce     : 随机数
    * @param echostr   : 随机字符串
-   * @return
+   * @return initial msg
    */
   @GetMapping("/wx/authorize")
   public String authorize(@RequestParam("signature") String signature,
