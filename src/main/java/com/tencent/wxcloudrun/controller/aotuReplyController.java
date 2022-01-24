@@ -3,6 +3,7 @@ package com.tencent.wxcloudrun.controller;
 import com.tencent.wxcloudrun.dto.WxXmlData;
 import com.tencent.wxcloudrun.service.CounterService;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,7 @@ public class aotuReplyController {
         WxXmlData wxXmlData = null;
         try {
             XStream xstream = new XStream();
+            xstream.addPermission(AnyTypePermission.ANY);
             //这个必须要加 不然无法转换成WxXmlData对象
             xstream.setClassLoader(WxXmlData.class.getClassLoader());
             xstream.processAnnotations(WxXmlData.class);
@@ -80,7 +82,7 @@ public class aotuReplyController {
             wxXmlData = (WxXmlData) xstream.fromXML(xmlData);
             logger.info("【wxXmlData: {}】 ", wxXmlData);
         } catch (Exception e) {
-            logger.error("【error】{}", e.getMessage());
+            logger.error("【error】{}", e);
         }
         return wxXmlData;
     }
@@ -95,6 +97,7 @@ public class aotuReplyController {
         XStream xstream = new XStream();
         xstream.processAnnotations(WxXmlData.class);
         xstream.setClassLoader(WxXmlData.class.getClassLoader());
+        logger.info("reply msg:{}", xstream.toXML(resultXmlData));
         return xstream.toXML(resultXmlData);  //XStream的方法，直接将对象转换成 xml数据
     }
 }
