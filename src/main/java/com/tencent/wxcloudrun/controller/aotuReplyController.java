@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,7 +51,7 @@ public class aotuReplyController {
         return echostr;
     }
 
-  @PostMapping(value = "/wx/authorize")
+    @PostMapping(value = "/wx/authorize", consumes = {MediaType.TEXT_XML_VALUE}, produces = {MediaType.TEXT_XML_VALUE})
   public String authorize(@RequestBody HttpServletRequest request) {
     WxXmlData msg = new WxXmlData();
     try {
