@@ -8,7 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -52,15 +55,15 @@ public class aotuReplyController {
     }
 
     @PostMapping(value = "/wx/authorize", consumes = {MediaType.TEXT_XML_VALUE}, produces = {MediaType.TEXT_XML_VALUE})
-  public String authorize(@RequestBody HttpServletRequest request) {
-    WxXmlData msg = new WxXmlData();
-    try {
-      msg = resolveXmlData(request.getInputStream());
-    } catch (IOException e) {
-      logger.error("parse msg error", e);
+    public String authorize(HttpServletRequest request) {
+        WxXmlData msg = new WxXmlData();
+        try {
+            msg = resolveXmlData(request.getInputStream());
+        } catch (IOException e) {
+            logger.error("parse msg error", e);
+        }
+        return autoResponse(msg);
     }
-    return autoResponse(msg);
-  }
 
     public WxXmlData resolveXmlData(InputStream in) throws IOException {
         StringWriter sw = new StringWriter();
