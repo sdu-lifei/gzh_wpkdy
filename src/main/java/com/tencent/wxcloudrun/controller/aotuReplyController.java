@@ -93,7 +93,7 @@ public class aotuReplyController {
         resultXmlData.setFromUserName(wxData.getToUserName());  //
         resultXmlData.setMsgType("text");
         resultXmlData.setCreateTime(System.currentTimeMillis());
-        resultXmlData.setContent("in testing");
+        resultXmlData.setContent("in testing:www.baidu.com");
         XStream xstream = new XStream();
         xstream.processAnnotations(WxXmlData.class);
         xstream.setClassLoader(WxXmlData.class.getClassLoader());
