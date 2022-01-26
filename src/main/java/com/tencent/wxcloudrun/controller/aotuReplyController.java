@@ -2,6 +2,7 @@ package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.dto.WxXmlData;
 import com.tencent.wxcloudrun.service.CounterService;
+import com.tencent.wxcloudrun.service.impl.SearchServiceImpl;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 import org.apache.commons.io.IOUtils;
@@ -80,7 +81,6 @@ public class aotuReplyController {
             xstream.processAnnotations(WxXmlData.class);
             xstream.alias("xml", WxXmlData.class);
             wxXmlData = (WxXmlData) xstream.fromXML(xmlData);
-            logger.info("【wxXmlData: {}】 ", wxXmlData);
         } catch (Exception e) {
             logger.error("【error】{}", e);
         }
@@ -93,7 +93,14 @@ public class aotuReplyController {
         resultXmlData.setFromUserName(wxData.getToUserName());  //
         resultXmlData.setMsgType("text");
         resultXmlData.setCreateTime(System.currentTimeMillis());
-        resultXmlData.setContent("in testing:www.baidu.com");
+        String content = "Sorry, service error please try again later!";
+        try {
+            content = SearchServiceImpl.searchByKeyword(wxData.getContent());
+        } catch (IOException e) {
+            logger.error("error when try to get resource", e);
+        }
+
+        resultXmlData.setContent(content);
         XStream xstream = new XStream();
         xstream.processAnnotations(WxXmlData.class);
         xstream.setClassLoader(WxXmlData.class.getClassLoader());
