@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class SearchServiceImpl {
 
-    static int time_out = 10000;
+    static int time_out = 30000;
 
     static String base_url = "https://www.upyunso.com/";
 
