@@ -29,7 +29,7 @@ public class SearchServiceImpl {
         Element resList = document.getElementById("res_list");
         Elements elements = resList.getElementsByAttributeValueContaining("href", "download.html");
 
-        // return top3 resource
+        // return top resource
         Set<String> urlSet = new HashSet<>();
         StringBuilder resStr = new StringBuilder("包含[ " + keyword + " ]的资源：\n");
         for (int i = 0; i < elements.size() && urlSet.size() < 5; i++) {

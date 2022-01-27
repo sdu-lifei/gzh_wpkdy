@@ -71,7 +71,6 @@ public class aotuReplyController {
         StringWriter sw = new StringWriter();
         IOUtils.copy(in, sw, StandardCharsets.UTF_8);
         String xmlData = sw.toString();
-        logger.info("【receive  xmlData str : {}】", xmlData);
         WxXmlData wxXmlData = null;
         try {
             XStream xstream = new XStream();
@@ -104,7 +103,6 @@ public class aotuReplyController {
         XStream xstream = new XStream();
         xstream.processAnnotations(WxXmlData.class);
         xstream.setClassLoader(WxXmlData.class.getClassLoader());
-        logger.info("reply msg:{}", xstream.toXML(resultXmlData));
-        return xstream.toXML(resultXmlData);  //XStream的方法，直接将对象转换成 xml数据
+        return xstream.toXML(resultXmlData);
     }
 }
