@@ -31,7 +31,7 @@ public class SearchServiceImpl {
 
         // return top3 resource
         Set<String> urlSet = new HashSet<>();
-        StringBuilder resStr = new StringBuilder("包含[" + keyword + "]的资源：");
+        StringBuilder resStr = new StringBuilder("包含[ " + keyword + " ]的资源：\n");
         for (int i = 0; i < elements.size() && urlSet.size() < 5; i++) {
             Element element = elements.get(i);
             String resUrl = getResUrl(element);
@@ -41,17 +41,13 @@ public class SearchServiceImpl {
             }
         }
 
-        return resStr.length() > 0 ? resStr.toString() : "Sorry, can not find the resource by " + keyword;
+        return urlSet.size() > 0 ? resStr.toString() : "Sorry, can not find the resource by " + keyword;
     }
 
     public static String getResUrl(Element element) throws IOException {
         String resId = element.attributes().get("href");
         Document resDoc = Jsoup.parse(new URL(base_url + resId), time_out);
         return resDoc.getElementsByAttributeValueContaining("href", "aliyundrive.com").get(0).attributes().get("href");
-    }
-
-    public static void main(String[] args) throws IOException {
-        System.out.println(searchByKeyword("生财有术"));
     }
 
 }
