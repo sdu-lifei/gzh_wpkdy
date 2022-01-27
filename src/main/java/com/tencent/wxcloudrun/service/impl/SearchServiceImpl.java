@@ -20,7 +20,7 @@ public class SearchServiceImpl {
     static String base_url = "https://www.upyunso.com/";
 
     static String start_url = "https://www.upyunso.com/search.html?page=1&search_folder_or_file=0&" +
-            "is_search_folder_content=0&is_search_path_title=0&category=all&file_extension=all&search_model=1&keyword=";
+            "is_search_folder_content=0&is_search_path_title=0&category=video&file_extension=all&search_model=1&keyword=";
 
 
     public static String searchByKeyword(String keyword) throws IOException {
