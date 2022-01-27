@@ -31,8 +31,8 @@ public class SearchServiceImpl {
 
         // return top3 resource
         Set<String> urlSet = new HashSet<>();
-        StringBuilder resStr = new StringBuilder();
-        for (int i = 0; i < elements.size() && urlSet.size() < 3; i++) {
+        StringBuilder resStr = new StringBuilder("包含[" + keyword + "]的资源：");
+        for (int i = 0; i < elements.size() && urlSet.size() < 5; i++) {
             Element element = elements.get(i);
             String resUrl = getResUrl(element);
             if (!urlSet.contains(resUrl)) {
@@ -51,7 +51,7 @@ public class SearchServiceImpl {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(searchByKeyword("jsoup"));
+        System.out.println(searchByKeyword("生财有术"));
     }
 
 }
