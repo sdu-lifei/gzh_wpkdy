@@ -94,7 +94,7 @@ public class aotuReplyController {
         resultXmlData.setCreateTime(System.currentTimeMillis());
         String content = "Sorry, service error please try again later!";
         try {
-            logger.info("search by {0}", wxData.toString());
+            logger.info("search by {0}", wxData);
             content = SearchServiceImpl.searchByKeyword(wxData.getContent());
         } catch (IOException e) {
             logger.error("error when try to get resource", e);
