@@ -81,7 +81,7 @@ public class aotuReplyController {
             xstream.alias("xml", WxXmlData.class);
             wxXmlData = (WxXmlData) xstream.fromXML(xmlData);
         } catch (Exception e) {
-            logger.error("【error】{}", e);
+            logger.error("【error】{0}", e);
         }
         return wxXmlData;
     }
@@ -94,7 +94,7 @@ public class aotuReplyController {
         resultXmlData.setCreateTime(System.currentTimeMillis());
         String content = "Sorry, service error please try again later!";
         try {
-            logger.info("search by {0}", wxData);
+            logger.info("search by {}", wxData);
             content = SearchServiceImpl.searchByKeyword(wxData.getContent());
         } catch (IOException e) {
             logger.error("error when try to get resource", e);
