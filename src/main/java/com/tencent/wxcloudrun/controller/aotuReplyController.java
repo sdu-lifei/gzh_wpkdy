@@ -98,6 +98,8 @@ public class aotuReplyController {
             content = SearchServiceImpl.searchByKeyword(wxData.getContent());
         } catch (IOException e) {
             logger.error("error when try to get resource", e);
+        } catch (Exception e) {
+            logger.error("other error", e);
         }
 
         resultXmlData.setContent(content);

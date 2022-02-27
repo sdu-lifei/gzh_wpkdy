@@ -27,6 +27,9 @@ public class SearchServiceImpl {
 
         Document document = Jsoup.parse(new URL(start_url + keyword), time_out);
         Element resList = document.getElementById("res_list");
+        if (resList == null) {
+            return "Sorry, can not find the resource by " + keyword;
+        }
         Elements elements = resList.getElementsByAttributeValueContaining("href", "download.html");
 
         // return top resource
@@ -35,7 +38,7 @@ public class SearchServiceImpl {
         for (int i = 0; i < elements.size() && urlSet.size() < 5; i++) {
             Element element = elements.get(i);
             String resUrl = getResUrl(element);
-            if (!urlSet.contains(resUrl)) {
+            if (resUrl.length() > 0 && !urlSet.contains(resUrl)) {
                 urlSet.add(resUrl);
                 resStr.append(element.text()).append(": ").append(resUrl).append("\n");
             }
@@ -47,6 +50,10 @@ public class SearchServiceImpl {
     public static String getResUrl(Element element) throws IOException {
         String resId = element.attributes().get("href");
         Document resDoc = Jsoup.parse(new URL(base_url + resId), time_out);
+        if (resDoc == null || resDoc.getElementsByAttributeValueContaining("href", "aliyundrive.com").size() == 0) {
+            return "";
+        }
+//        System.out.println(resDoc.getElementsByAttributeValueContaining("href", "aliyundrive.com"));
         return resDoc.getElementsByAttributeValueContaining("href", "aliyundrive.com").get(0).attributes().get("href");
     }
 
