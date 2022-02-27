@@ -50,4 +50,8 @@ public class SearchServiceImpl {
         return resDoc.getElementsByAttributeValueContaining("href", "aliyundrive.com").get(0).attributes().get("href");
     }
 
+    public static void main(String[] args) throws IOException {
+        System.out.println(searchByKeyword("超越2022"));
+    }
+
 }
