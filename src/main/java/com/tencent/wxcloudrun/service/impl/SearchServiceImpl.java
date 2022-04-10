@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.service.impl;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,7 +16,10 @@ import java.util.Set;
  */
 public class SearchServiceImpl {
 
-    static int time_out = 30000;
+    static int time_out = 4000;
+
+    static String def_mv = "电影仓：https://www.aliyundrive.com/s/u9BAWCEZqHi/folder/625154d1bd111a6b52bc4dc6bdb4aa8351efcffd";
+    static String def_ds = "电视剧仓：https://www.aliyundrive.com/s/rJQ38Ab9Qd7/folder/6210a2fbea04dde2ea53432696ceb6ca4fbe28ec";
 
     static String base_url = "https://www.upyunso.com/";
 
@@ -25,10 +29,12 @@ public class SearchServiceImpl {
 
     public static String searchByKeyword(String keyword) throws IOException {
 
+        String defRes = def_mv + System.lineSeparator() + def_ds;
+
         Document document = Jsoup.parse(new URL(start_url + keyword), time_out);
         Element resList = document.getElementById("res_list");
         if (resList == null) {
-            return "Sorry, can not find the resource by " + keyword;
+            return defRes;
         }
         Elements elements = resList.getElementsByAttributeValueContaining("href", "download.html");
 
@@ -44,21 +50,17 @@ public class SearchServiceImpl {
             }
         }
 
-        return urlSet.size() > 0 ? resStr.toString() : "Sorry, can not find the resource by " + keyword;
+        return urlSet.size() > 0 ? resStr.toString() : defRes;
     }
 
     public static String getResUrl(Element element) throws IOException {
         String resId = element.attributes().get("href");
-        Document resDoc = Jsoup.parse(new URL(base_url + resId), time_out);
-        if (resDoc == null || resDoc.getElementsByAttributeValueContaining("href", "aliyundrive.com").size() == 0) {
-            return "";
-        }
-//        System.out.println(resDoc.getElementsByAttributeValueContaining("href", "aliyundrive.com"));
-        return resDoc.getElementsByAttributeValueContaining("href", "aliyundrive.com").get(0).attributes().get("href");
+        Connection.Response response = Jsoup.connect(base_url + resId).followRedirects(false).method(Connection.Method.GET).execute();
+        return response.headers("location").get(0);
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(searchByKeyword("超越2022"));
+        System.out.println(searchByKeyword("超越333"));
     }
 
 }
