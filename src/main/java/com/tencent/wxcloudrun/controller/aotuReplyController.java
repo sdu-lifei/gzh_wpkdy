@@ -1,14 +1,11 @@
 package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.dto.WxXmlData;
-import com.tencent.wxcloudrun.service.CounterService;
 import com.tencent.wxcloudrun.service.impl.SearchServiceImpl;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.AnyTypePermission;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,16 +21,9 @@ import java.nio.charset.StandardCharsets;
 /**
  * 自动回复消息控制器
  */
+@Slf4j
 @RestController
 public class aotuReplyController {
-
-    final CounterService counterService;
-    final Logger logger;
-
-    public aotuReplyController(@Autowired CounterService counterService) {
-        this.counterService = counterService;
-        this.logger = LoggerFactory.getLogger(aotuReplyController.class);
-    }
 
     /**
      * 微信成为开发者 接口
@@ -49,10 +39,7 @@ public class aotuReplyController {
                             @RequestParam("timestamp") Long timestamp,
                             @RequestParam("nonce") String nonce,
                             @RequestParam("echostr") String echostr) {
-        logger.info("【signature：{}】", signature);
-        logger.info("【timestamp：{}】", timestamp);
-        logger.info("【nonce：{}】", nonce);
-        logger.info("【echostr：{}】", echostr);
+        log.info("【echostr：{}】", echostr);
         return echostr;
     }
 
@@ -62,7 +49,7 @@ public class aotuReplyController {
         try {
             msg = resolveXmlData(request.getInputStream());
         } catch (IOException e) {
-            logger.error("parse msg error", e);
+            log.error("parse msg error", e);
         }
         return autoResponse(msg);
     }
@@ -81,7 +68,7 @@ public class aotuReplyController {
             xstream.alias("xml", WxXmlData.class);
             wxXmlData = (WxXmlData) xstream.fromXML(xmlData);
         } catch (Exception e) {
-            logger.error("【error】{0}", e);
+            log.error("【error】{0}", e);
         }
         return wxXmlData;
     }
@@ -94,12 +81,10 @@ public class aotuReplyController {
         resultXmlData.setCreateTime(System.currentTimeMillis());
         String content = "Sorry, service error please try again later!";
         try {
-            logger.info("search by {}", wxData);
+            log.info("search by {}", wxData);
             content = SearchServiceImpl.searchByKeyword(wxData.getContent());
-        } catch (IOException e) {
-            logger.error("error when try to get resource", e);
         } catch (Exception e) {
-            logger.error("other error", e);
+            log.error("other error", e);
         }
 
         resultXmlData.setContent(content);
