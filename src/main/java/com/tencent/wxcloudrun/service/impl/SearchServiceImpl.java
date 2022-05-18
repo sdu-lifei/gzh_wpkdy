@@ -2,17 +2,21 @@ package com.tencent.wxcloudrun.service.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.gson.Gson;
+import com.tencent.wxcloudrun.model.DownResponse;
+import com.tencent.wxcloudrun.model.FolderRes;
+import com.tencent.wxcloudrun.model.WebResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
 
@@ -29,9 +33,9 @@ public class SearchServiceImpl {
 
     static String defRes = "暂未找到包含关键字的资源，看下资源库，或者稍后重试：" + System.lineSeparator() + def_mv + System.lineSeparator() + def_ds;
 
-    static String base_url = "https://www.upyunso.com/";
+    static String base_url = "https://api.upyunso.com/";
 
-    static String start_url = "https://www.upyunso.com/search.html?page=1&search_folder_or_file=1&is_search_folder_content=0&is_search_path_title=1&category=all&file_extension=all&search_model=1&keyword=";
+    static String start_url = "https://api.upyunso.com/search?page=1&s_type=2&keyword=";
 
     static int res_limit = 10;
 
@@ -55,15 +59,29 @@ public class SearchServiceImpl {
 
     }
 
-    public static String getResFromWeb(String keyword) {
+    public static String invokeApi(int invokeType, String keyword) {
         Document document;
         try {
-            document = Jsoup.parse(new URL(start_url + keyword), time_out);
+            if (invokeType == 1) {
+                String kw = URLEncoder.encode(keyword, "utf-8");
+                document = Jsoup.parse(new URL(start_url + kw), time_out);
+            } else {
+                document = Jsoup.parse(new URL(base_url + keyword), time_out);
+            }
+
         } catch (Exception e) {
             log.error("search error", e);
             return defRes;
         }
-        Elements elements = document.select("div.main-info > h1 > a");
+        final Base64.Decoder decoder = Base64.getDecoder();
+        return new String(decoder.decode(document.text()), StandardCharsets.UTF_8);
+    }
+
+    public static String getResFromWeb(String keyword) {
+
+        String decodeStr = invokeApi(1, keyword);
+        WebResponse response = new Gson().fromJson(decodeStr, WebResponse.class);
+        List<FolderRes> elements = response.getResult().getItems();
         if (elements == null || elements.size() <= 0) {
             return defRes;
         }
@@ -79,28 +97,24 @@ public class SearchServiceImpl {
         // 先返回第一个
         StringBuilder resStr = new StringBuilder("包含[ " + keyword + " ]的第一个资源：" + lineSp);
         // return top resource
-        Optional<Element> element = elements.stream().filter(a -> a.attr("href").contains("download.html")).findFirst();
-        resStr.append(getResUrl(element.get())).append(lineSp).append(lineSp).append("如需更多资源请重试");
+        resStr.append(getResUrl(elements.get(0).getPage_url())).append(lineSp).append(lineSp).append(",请再次发送同样关键字获取更多资源");
         return resStr.toString();
     }
 
-    private static void updateCache(String keyword, Elements elements) throws InterruptedException {
+    private static void updateCache(String keyword, List<FolderRes> elements) throws InterruptedException {
         log.debug("start {}", System.currentTimeMillis());
         Set<String> urlSet = new CopyOnWriteArraySet<>();
         Set<String> nameSet = new CopyOnWriteArraySet<>();
         StringBuilder resStr = new StringBuilder("包含[ " + keyword + " ]的资源：" + lineSp);
         CountDownLatch latch = new CountDownLatch(res_limit);
-        for (Element element : elements) {
-            if (!element.attr("href").contains("download.html")) {
-                continue;
-            }
+        for (FolderRes element : elements) {
             if (urlSet.size() < res_limit) {
                 executorService.submit(() -> {
-                    String resUrl = getResUrl(element);
-                    if (resUrl.length() > 0 && !nameSet.contains(element.text()) && !urlSet.contains(resUrl) && urlSet.size() < res_limit) {
+                    String resUrl = getResUrl(element.getPage_url());
+                    if (resUrl.length() > 0 && !nameSet.contains(element.getPath()) && !urlSet.contains(resUrl) && urlSet.size() < res_limit) {
                         urlSet.add(resUrl);
-                        nameSet.add(element.text());
-                        resStr.append(resUrl).append(lineSp);
+                        nameSet.add(element.getPath());
+                        resStr.append(element.getPath()).append(":").append(resUrl).append(lineSp);
                         latch.countDown();
                     }
                 });
@@ -117,16 +131,14 @@ public class SearchServiceImpl {
         resCache.put(keyword, res);
     }
 
-    public static String getResUrl(Element element) {
-        String resId = element.attr("href");
-        Connection.Response response;
-        try {
-            response = Jsoup.connect(base_url + resId).followRedirects(false).method(Connection.Method.GET).execute();
-        } catch (IOException e) {
-            log.error("get ali yun url error", e);
-            return "";
-        }
-        return response.headers("location").size() == 0 ? "" : element.text() + ": " + response.headers("location").get(0);
+    private static String getParam(String url) {
+        return url.replace(".html", "");
+    }
+
+    public static String getResUrl(String resId) {
+        String response = invokeApi(2, getParam(resId));
+        final DownResponse downResponse = new Gson().fromJson(response, DownResponse.class);
+        return downResponse.getResult().getRes_url();
     }
 
     public static void main(String[] args) throws InterruptedException {
