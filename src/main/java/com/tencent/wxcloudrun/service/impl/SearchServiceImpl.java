@@ -8,6 +8,7 @@ import com.tencent.wxcloudrun.model.FolderRes;
 import com.tencent.wxcloudrun.model.WebResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
+import org.jsoup.internal.StringUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.util.StringUtils;
@@ -97,7 +98,21 @@ public class SearchServiceImpl {
         // 先返回第一个
         StringBuilder resStr = new StringBuilder("包含[ " + keyword + " ]的第一个资源：" + lineSp);
         // return top resource
-        resStr.append(getResUrl(elements.get(0).getPage_url())).append(lineSp).append(lineSp).append(",请再次发送同样关键字获取更多资源");
+        String downUrl = "";
+        for (FolderRes element : elements) {
+            if (element.getPage_url().contains("download")) {
+                downUrl = element.getPage_url();
+                break;
+            }
+        }
+        if (downUrl.length() <= 0) {
+            return defRes;
+        }
+        String resUrl = getResUrl(downUrl);
+        if (StringUtil.isBlank(resUrl)) {
+            return defRes;
+        }
+        resStr.append(resUrl).append(lineSp).append(lineSp).append("请再次发送消息获取更多资源");
         return resStr.toString();
     }
 
@@ -110,6 +125,10 @@ public class SearchServiceImpl {
         for (FolderRes element : elements) {
             if (urlSet.size() < res_limit) {
                 executorService.submit(() -> {
+                    String downUrl = element.getPage_url();
+                    if (!downUrl.contains("download")) {
+                        return;
+                    }
                     String resUrl = getResUrl(element.getPage_url());
                     if (resUrl.length() > 0 && !nameSet.contains(element.getPath()) && !urlSet.contains(resUrl) && urlSet.size() < res_limit) {
                         urlSet.add(resUrl);
@@ -118,7 +137,7 @@ public class SearchServiceImpl {
                         latch.countDown();
                     }
                 });
-                Thread.sleep(400);
+                Thread.sleep(300);
             } else {
                 break;
             }

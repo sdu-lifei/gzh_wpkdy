@@ -79,7 +79,7 @@ public class aotuReplyController {
         resultXmlData.setFromUserName(wxData.getToUserName());  //
         resultXmlData.setMsgType("text");
         resultXmlData.setCreateTime(System.currentTimeMillis());
-        String content = "Sorry, service error please try again later!";
+        String content = "不好意思，小盘现在有点儿忙，请您稍后再试，^_^";
         try {
             log.info("search by {}", wxData);
             content = SearchServiceImpl.searchByKeyword(wxData.getContent());
