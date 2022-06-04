@@ -72,20 +72,17 @@ public class SearchServiceImpl {
 
         } catch (Exception e) {
             log.error("search error", e);
-            return defRes;
+            return null;
         }
+
         final Base64.Decoder decoder = Base64.getDecoder();
-        String response = new String(decoder.decode(document.text()), StandardCharsets.UTF_8);
-        final DownResponse downResponse = new Gson().fromJson(response, DownResponse.class);
-        return downResponse.getResult().getRes_url();
+        return new String(decoder.decode(document.text()), StandardCharsets.UTF_8);
 
     }
 
     public static String getResFromWeb(String keyword) {
 
-        String decodeStr = invokeApi(1, keyword);
-        WebResponse response = new Gson().fromJson(decodeStr, WebResponse.class);
-        List<FolderRes> elements = response.getResult().getItems();
+        List<FolderRes> elements = getUrlList(keyword);
         if (elements == null || elements.size() <= 0) {
             return defRes;
         }
@@ -133,7 +130,7 @@ public class SearchServiceImpl {
                         return;
                     }
                     String resUrl = getResUrl(element.getPage_url());
-                    if (resUrl.length() > 0 && !nameSet.contains(element.getPath()) && !urlSet.contains(resUrl) && urlSet.size() < res_limit) {
+                    if (!StringUtil.isBlank(resUrl) && !nameSet.contains(element.getPath()) && !urlSet.contains(resUrl) && urlSet.size() < res_limit) {
                         urlSet.add(resUrl);
                         nameSet.add(element.getPath());
                         resStr.append(element.getPath()).append(":").append(resUrl).append(lineSp);
@@ -158,7 +155,21 @@ public class SearchServiceImpl {
     }
 
     public static String getResUrl(String resId) {
-        return invokeApi(2, getParam(resId));
+        String downDoc = invokeApi(2, getParam(resId));
+        if (StringUtil.isBlank(downDoc)) {
+            return "";
+        }
+        final DownResponse downResponse = new Gson().fromJson(downDoc, DownResponse.class);
+        return downResponse.getResult().getRes_url();
+    }
+
+    public static List<FolderRes> getUrlList(String keyword) {
+        String docStr = invokeApi(1, keyword);
+        if (StringUtil.isBlank(docStr)) {
+            return null;
+        }
+        WebResponse response = new Gson().fromJson(docStr, WebResponse.class);
+        return response.getResult().getItems();
     }
 
     public static void main(String[] args) throws InterruptedException {
