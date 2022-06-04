@@ -75,7 +75,10 @@ public class SearchServiceImpl {
             return defRes;
         }
         final Base64.Decoder decoder = Base64.getDecoder();
-        return new String(decoder.decode(document.text()), StandardCharsets.UTF_8);
+        String response = new String(decoder.decode(document.text()), StandardCharsets.UTF_8);
+        final DownResponse downResponse = new Gson().fromJson(response, DownResponse.class);
+        return downResponse.getResult().getRes_url();
+
     }
 
     public static String getResFromWeb(String keyword) {
@@ -137,7 +140,7 @@ public class SearchServiceImpl {
                         latch.countDown();
                     }
                 });
-                Thread.sleep(300);
+                Thread.sleep(500);
             } else {
                 break;
             }
@@ -155,9 +158,7 @@ public class SearchServiceImpl {
     }
 
     public static String getResUrl(String resId) {
-        String response = invokeApi(2, getParam(resId));
-        final DownResponse downResponse = new Gson().fromJson(response, DownResponse.class);
-        return downResponse.getResult().getRes_url();
+        return invokeApi(2, getParam(resId));
     }
 
     public static void main(String[] args) throws InterruptedException {
