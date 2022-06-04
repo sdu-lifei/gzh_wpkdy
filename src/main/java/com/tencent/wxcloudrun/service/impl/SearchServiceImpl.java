@@ -124,11 +124,11 @@ public class SearchServiceImpl {
         CountDownLatch latch = new CountDownLatch(res_limit);
         for (FolderRes element : elements) {
             if (urlSet.size() < res_limit) {
+                String downUrl = element.getPage_url();
+                if (!downUrl.contains("download")) {
+                    continue;
+                }
                 executorService.submit(() -> {
-                    String downUrl = element.getPage_url();
-                    if (!downUrl.contains("download")) {
-                        return;
-                    }
                     String resUrl = getResUrl(element.getPage_url());
                     if (!StringUtil.isBlank(resUrl) && !nameSet.contains(element.getPath()) && !urlSet.contains(resUrl) && urlSet.size() < res_limit) {
                         urlSet.add(resUrl);
