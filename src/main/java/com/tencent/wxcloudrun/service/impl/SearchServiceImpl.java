@@ -7,6 +7,7 @@ import com.tencent.wxcloudrun.model.DownResponse;
 import com.tencent.wxcloudrun.model.FolderRes;
 import com.tencent.wxcloudrun.model.WebResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.internal.StringUtil;
 import org.jsoup.nodes.Document;
@@ -129,11 +130,11 @@ public class SearchServiceImpl {
                     continue;
                 }
                 executorService.submit(() -> {
-                    String resUrl = getResUrl(element.getPage_url());
+                    String resUrl = getResUrl(downUrl);
                     if (!StringUtil.isBlank(resUrl) && !nameSet.contains(element.getPath()) && !urlSet.contains(resUrl) && urlSet.size() < res_limit) {
                         urlSet.add(resUrl);
                         nameSet.add(element.getPath());
-                        resStr.append(element.getPath()).append(":").append(resUrl).append(lineSp);
+                        resStr.append(StringEscapeUtils.escapeHtml4(element.getPath())).append(":").append(resUrl).append(lineSp);
                         latch.countDown();
                     }
                 });
