@@ -8,10 +8,10 @@ import com.tencent.wxcloudrun.model.FolderRes;
 import com.tencent.wxcloudrun.model.WebResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.internal.StringUtil;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.springframework.util.StringUtils;
 
 import java.net.URL;
@@ -54,7 +54,7 @@ public class SearchServiceImpl {
             .expireAfterWrite(24, TimeUnit.HOURS)
             .build();
 
-    public static String searchByKeyword(String keyword) throws InterruptedException {
+    public static String searchByKeyword(String keyword) {
         // 获取value的值，如果key不存在，调用collable方法获取value值加载到key中再返回
         String res = resCache.getIfPresent(keyword);
         return StringUtils.isEmpty(res) ? getResFromWeb(keyword) : res;
@@ -65,10 +65,16 @@ public class SearchServiceImpl {
         Document document;
         try {
             if (invokeType == 1) {
-                String kw = URLEncoder.encode(keyword, "utf-8");
-                document = Jsoup.parse(new URL(start_url + kw), time_out);
+                String encodeKeyword = URLEncoder.encode(keyword, "utf-8");
+                document = Jsoup.parse(new URL(start_url + encodeKeyword), time_out);
             } else {
-                document = Jsoup.parse(new URL(base_url + keyword), time_out);
+                Connection conn = Jsoup.connect(base_url + keyword);
+                conn.header("Accept", "*/*");
+                conn.header("Referer", "https://www.upyunso.com");
+                conn.header("Origin", "https://www.upyunso.com");
+                conn.header("User-Agent", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36");
+                conn.timeout(time_out);
+                document = conn.get();
             }
 
         } catch (Exception e) {
@@ -138,7 +144,7 @@ public class SearchServiceImpl {
                         latch.countDown();
                     }
                 });
-                Thread.sleep(500);
+                Thread.sleep(350);
             } else {
                 break;
             }
@@ -157,6 +163,7 @@ public class SearchServiceImpl {
 
     public static String getResUrl(String resId) {
         String downDoc = invokeApi(2, getParam(resId));
+//        String downDoc = invokeApi(2, resId);
         if (StringUtil.isBlank(downDoc)) {
             return "";
         }
@@ -173,16 +180,20 @@ public class SearchServiceImpl {
         return response.getResult().getItems();
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Document document = null;
-        String keyword = "我的祖国";
+        String keyword = "昆仑神宫";
         try {
             document = Jsoup.parse(new URL(start_url + keyword), time_out);
+//            System.out.println(document);
+            getResFromWeb(keyword);
         } catch (Exception e) {
             log.error("search error", e);
         }
-        assert document != null;
-        Elements resList = document.select("div.main-info > h1 > a");
+//        assert document != null;
+//        final Base64.Decoder decoder = Base64.getDecoder();
+//        System.out.println("decode:"+new String(decoder.decode(document.text()), StandardCharsets.UTF_8));
+//        Elements resList = document.select("div.main-info > h1 > a");
     }
 
 }
