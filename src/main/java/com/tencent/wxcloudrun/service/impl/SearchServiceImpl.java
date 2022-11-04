@@ -98,7 +98,7 @@ public class SearchServiceImpl {
     }
 
     public static String getDirectUrl(String keyword, List<FolderRes> elements) {
-        StringBuilder resStr = new StringBuilder(resp_head + "包含[ " + keyword + " ]的资源：");
+        StringBuilder resStr = new StringBuilder(resp_head + "包含[" + keyword + "]的资源：");
         int count = 0;
         for (FolderRes element : elements) {
             if (element.getPage_url().contains("aliyundrive")) {

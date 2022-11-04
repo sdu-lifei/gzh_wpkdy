@@ -48,6 +48,7 @@ public class aotuReplyController {
         WxXmlData msg = new WxXmlData();
         try {
             msg = resolveXmlData(request.getInputStream());
+            log.error("msg is:", msg);
         } catch (IOException e) {
             log.error("parse msg error", e);
         }
