@@ -31,9 +31,19 @@ public class SearchServiceImpl {
     static int time_out = 4000;
 
     static String def_mv = "电影仓：https://www.aliyundrive.com/s/u9BAWCEZqHi/folder/625154d1bd111a6b52bc4dc6bdb4aa8351efcffd";
-    static String def_ds = "电视剧仓：https://www.aliyundrive.com/s/rJQ38Ab9Qd7/folder/6210a2fbea04dde2ea53432696ceb6ca4fbe28ec";
+    static String def_ds = "电视剧仓：https://www.aliyundrive.com/s/BjzGgQ4QLTd/folder/6242a5ca02dcaa56224d464d8980789e98a42b67";
 
-    static String defRes = "暂未找到包含关键字的资源，看下资源库，或者稍后重试：" + System.lineSeparator() + def_mv + System.lineSeparator() + def_ds;
+    static String res_hongbao = "先领个红包再看不迟：https://www.aliyundrive.com/s/KE7iWRpaAn1";
+
+    static String nores_hongbao = "再赔个红包给你：https://www.aliyundrive.com/s/KE7iWRpaAn1";
+
+    static String resp_head = res_hongbao + System.lineSeparator();
+
+
+    static String defRes = "暂未找到包含关键字的资源，看下资源库，或者稍后重试："
+            + System.lineSeparator() + def_mv
+            + System.lineSeparator() + def_ds
+            + System.lineSeparator() + nores_hongbao;
 
     static String base_url = "https://api.upyunso.com/";
 
@@ -87,12 +97,31 @@ public class SearchServiceImpl {
 
     }
 
+    public static String getDirectUrl(String keyword, List<FolderRes> elements) {
+        StringBuilder resStr = new StringBuilder(resp_head + "包含[ " + keyword + " ]的资源：");
+        int count = 0;
+        for (FolderRes element : elements) {
+            if (element.getPage_url().contains("aliyundrive")) {
+                count++;
+                resStr.append(StringEscapeUtils.escapeHtml4(element.getPath())).append(":").append(element.getPage_url()).append(lineSp);
+            }
+        }
+
+        if (count == 0) return null;
+        return resStr.toString();
+    }
+
     public static String getResFromWeb(String keyword) {
 
         List<FolderRes> elements = getUrlList(keyword);
         if (elements == null || elements.size() <= 0) {
             return defRes;
         }
+
+        if (getDirectUrl(keyword, elements) != null) {
+            return getDirectUrl(keyword, elements);
+        }
+
         // 多线程异步查找
         executorService.submit(() -> {
             try {
@@ -112,7 +141,7 @@ public class SearchServiceImpl {
                 break;
             }
         }
-        if (downUrl.length() <= 0) {
+        if (downUrl.length() == 0) {
             return defRes;
         }
         String resUrl = getResUrl(downUrl);
@@ -162,6 +191,11 @@ public class SearchServiceImpl {
     }
 
     public static String getResUrl(String resId) {
+
+        if (resId.contains("aliyundrive")) {
+            return resId;
+        }
+
         String downDoc = invokeApi(2, getParam(resId));
 //        String downDoc = invokeApi(2, resId);
         if (StringUtil.isBlank(downDoc)) {
