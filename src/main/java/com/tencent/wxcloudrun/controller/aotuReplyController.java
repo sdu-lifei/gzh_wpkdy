@@ -59,6 +59,7 @@ public class aotuReplyController {
         StringWriter sw = new StringWriter();
         IOUtils.copy(in, sw, StandardCharsets.UTF_8);
         String xmlData = sw.toString();
+        log.error("xmlData is:", xmlData);
         WxXmlData wxXmlData = null;
         try {
             XStream xstream = new XStream();
