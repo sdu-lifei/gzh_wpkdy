@@ -48,7 +48,7 @@ public class aotuReplyController {
         WxXmlData msg = new WxXmlData();
         try {
             msg = resolveXmlData(request.getInputStream());
-            log.error("msg is:", msg);
+            log.error("msg is:" + msg);
         } catch (IOException e) {
             log.error("parse msg error", e);
         }
@@ -59,7 +59,7 @@ public class aotuReplyController {
         StringWriter sw = new StringWriter();
         IOUtils.copy(in, sw, StandardCharsets.UTF_8);
         String xmlData = sw.toString();
-        log.error("xmlData is:", xmlData);
+        log.error("xmlData is:" + xmlData);
         WxXmlData wxXmlData = null;
         try {
             XStream xstream = new XStream();
