@@ -69,7 +69,7 @@ public class aotuReplyController {
             xstream.alias("xml", WxXmlData.class);
             wxXmlData = (WxXmlData) xstream.fromXML(xmlData);
         } catch (Exception e) {
-            log.error("【error】{0}", e);
+            log.error("unknown error: ", e);
         }
         return wxXmlData;
     }
