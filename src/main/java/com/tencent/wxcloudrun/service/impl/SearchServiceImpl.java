@@ -99,10 +99,10 @@ public class SearchServiceImpl {
 
     public static String getDirectUrl(String keyword, List<FolderRes> elements) {
         StringBuilder resStr = new StringBuilder(resp_head + "包含[" + keyword + "]的资源：");
-        log.error("doing: " + keyword);
+        log.debug("searching keyword: {}", keyword);
         int count = 0;
         for (FolderRes element : elements) {
-            if (count >= 15) break;
+            if (count >= 10) break;
             if (element.getPage_url().contains("aliyundrive")) {
                 count++;
                 resStr.append(StringEscapeUtils.escapeHtml4(element.getPath())).append(":").append(element.getPage_url()).append(lineSp);
@@ -110,6 +110,9 @@ public class SearchServiceImpl {
         }
 
         if (count == 0) return null;
+        // add to cache
+        resCache.put(keyword, resStr.toString());
+        // response
         return resStr.toString();
     }
 
