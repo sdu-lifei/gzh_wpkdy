@@ -45,9 +45,9 @@ public class SearchServiceImpl {
             + System.lineSeparator() + def_ds
             + System.lineSeparator() + nores_hongbao;
 
-    static String base_url = "https://api.upyunso.com/";
+    static String base_url = "https://api.upyunso2.com/";
 
-    static String start_url = "https://api.upyunso.com/search?page=1&s_type=2&keyword=";
+    static String start_url = "https://api.upyunso2.com/search?page=1&s_type=2&keyword=";
 
     static int res_limit = 10;
 
@@ -73,20 +73,21 @@ public class SearchServiceImpl {
 
     public static String invokeApi(int invokeType, String keyword) {
         Document document;
+        String searchUrl = "";
         try {
             if (invokeType == 1) {
                 String encodeKeyword = URLEncoder.encode(keyword, "utf-8");
-                document = Jsoup.parse(new URL(start_url + encodeKeyword), time_out);
+                searchUrl = start_url + encodeKeyword;
             } else {
-                Connection conn = Jsoup.connect(base_url + keyword);
-                conn.header("Accept", "*/*");
-                conn.header("Referer", "https://www.upyunso.com");
-                conn.header("Origin", "https://www.upyunso.com");
-                conn.header("User-Agent", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36");
-                conn.timeout(time_out);
-                document = conn.get();
+                searchUrl = base_url + keyword;
             }
-
+            Connection conn = Jsoup.connect(searchUrl);
+            conn.header("Accept", "*/*");
+            conn.header("Referer", "https://www.upyunso.com/");
+            conn.header("Origin", "https://www.upyunso.com");
+            conn.header("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1");
+            conn.timeout(time_out);
+            document = conn.get();
         } catch (Exception e) {
             log.error("search error", e);
             return null;
