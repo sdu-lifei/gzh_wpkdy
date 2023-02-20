@@ -14,7 +14,7 @@ import org.jsoup.internal.StringUtil;
 import org.jsoup.nodes.Document;
 import org.springframework.util.StringUtils;
 
-import java.net.URL;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -106,7 +106,7 @@ public class SearchServiceImpl {
             if (count >= 10) break;
             if (element.getPage_url().contains("aliyundrive")) {
                 count++;
-                resStr.append(StringEscapeUtils.escapeHtml4(element.getPath())).append(":").append(element.getPage_url()).append(lineSp);
+                resStr.append(getPath(element.getPath(), keyword)).append(":").append(element.getPage_url()).append(lineSp);
             }
         }
 
@@ -115,6 +115,43 @@ public class SearchServiceImpl {
         resCache.put(keyword, resStr.toString());
         // response
         return resStr.toString();
+    }
+
+    public static boolean isValid(String resUrl) {
+//        Connection conn = Jsoup.connect(resUrl);
+//        conn.header("Accept", "*/*");
+//        conn.header("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1");
+//        conn.timeout(time_out);
+        try {
+//            Document document = conn.get();
+//            Document document = Jsoup.parse(new URL(resUrl), time_out);
+            Connection.Response resp = Jsoup.connect(resUrl)
+                    .header("access-control-allow-credentials", "true")
+                    .header("access-control-allow-origin", "https://www.aliyundrive.com")
+                    .header("access-control-expose-headers", "Content-MD5,X-Request-Id,X-Canary,X-Share-Token,X-Ca-Request-Id,X-Ca-Error-Code,X-Ca-Error-Message")
+                    .header("content-type", "application/json")
+                    .timeout(1000)
+                    .method(Connection.Method.OPTIONS)
+                    .maxBodySize(0)
+                    .followRedirects(false)
+                    .execute();
+            String htmlStr = new String(resp.bodyAsBytes());
+            System.out.println(htmlStr);
+            return true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * if the resource path length too long, then it may duplicate
+     *
+     * @param initialPath
+     * @param keyword
+     * @return
+     */
+    public static String getPath(String initialPath, String keyword) {
+        return StringEscapeUtils.escapeHtml4(initialPath.length() > 3 * keyword.length() ? keyword : initialPath);
     }
 
     public static String getResFromWeb(String keyword) {
@@ -220,16 +257,26 @@ public class SearchServiceImpl {
         return response.getResult().getItems();
     }
 
+    public static Document getDocument(String webUrl) {
+//        ChromeDriver driver = new ChromeDriver();
+////            driver.setJavascriptEnabled(true);
+//        driver.get(webUrl);
+//        System.out.println(driver.toString());
+        return null;
+    }
+
     public static void main(String[] args) {
-        Document document = null;
-        String keyword = "昆仑神宫";
-        try {
-            document = Jsoup.parse(new URL(start_url + keyword), time_out);
-//            System.out.println(document);
-            getResFromWeb(keyword);
-        } catch (Exception e) {
-            log.error("search error", e);
-        }
+//        isValid("https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous?share_id=B1hRjhZEzJG");
+        System.out.println(getDocument("https://www.aliyundrive.com/s/B1hRjhZEzJG").toString());
+//        Document document = null;
+//        String keyword = "昆仑神宫";
+//        try {
+//            document = Jsoup.parse(new URL(start_url + keyword), time_out);
+////            System.out.println(document);
+//            getResFromWeb(keyword);
+//        } catch (Exception e) {
+//            log.error("search error", e);
+//        }
 //        assert document != null;
 //        final Base64.Decoder decoder = Base64.getDecoder();
 //        System.out.println("decode:"+new String(decoder.decode(document.text()), StandardCharsets.UTF_8));
