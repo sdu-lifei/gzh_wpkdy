@@ -267,7 +267,7 @@ public class SearchServiceImpl {
 
     public static void main(String[] args) {
 //        isValid("https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous?share_id=B1hRjhZEzJG");
-        System.out.println(getDocument("https://www.aliyundrive.com/s/B1hRjhZEzJG").toString());
+//        System.out.println(getDocument("https://www.aliyundrive.com/s/B1hRjhZEzJG").toString());
 //        Document document = null;
 //        String keyword = "昆仑神宫";
 //        try {
