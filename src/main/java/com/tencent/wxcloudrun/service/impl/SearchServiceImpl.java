@@ -40,7 +40,7 @@ public class SearchServiceImpl {
     static String resp_head = res_hongbao + System.lineSeparator();
 
 
-    static String defRes = "暂未找到包含关键字的资源，看下资源库，或者稍后重试："
+    static String defRes = "抱歉，未找到包含关键字的资源，给你其他好看的："
             + System.lineSeparator() + def_mv
             + System.lineSeparator() + def_ds
             + System.lineSeparator() + nores_hongbao;
