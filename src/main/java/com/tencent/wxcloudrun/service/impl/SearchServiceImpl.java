@@ -103,8 +103,9 @@ public class SearchServiceImpl {
         log.debug("searching keyword: {}", keyword);
         int count = 0;
         for (FolderRes element : elements) {
-            if (count >= 10) break;
-            if (element.getPage_url().contains("aliyundrive")) {
+            if (count >= res_limit) break;
+            // add the new url
+            if (element.getPage_url().contains("aliyundrive") && !resStr.toString().contains(element.getPage_url())) {
                 count++;
                 resStr.append(getPath(element.getPath(), keyword)).append(":").append(element.getPage_url()).append(lineSp);
             }
@@ -144,14 +145,16 @@ public class SearchServiceImpl {
     }
 
     /**
-     * if the resource path length too long, then it may duplicate
+     * remove the duplicated string in resource path
      *
      * @param initialPath
      * @param keyword
      * @return
      */
     public static String getPath(String initialPath, String keyword) {
-        return StringEscapeUtils.escapeHtml4(initialPath.length() > 3 * keyword.length() ? keyword : initialPath);
+        String regex = "(" + keyword + ")\\1+";
+        String deduplicate = initialPath.replaceAll(regex, "$1");
+        return StringEscapeUtils.escapeHtml4(deduplicate);
     }
 
     public static String getResFromWeb(String keyword) {
@@ -281,6 +284,11 @@ public class SearchServiceImpl {
 //        final Base64.Decoder decoder = Base64.getDecoder();
 //        System.out.println("decode:"+new String(decoder.decode(document.text()), StandardCharsets.UTF_8));
 //        Elements resList = document.select("div.main-info > h1 > a");
+        String test = "我在看狂飙狂飙狂飙狂飙狂飙狂飙狂飙狂飙狂飙狂飙哈哈";
+        String keyword = "狂飙";
+        String regex = "(" + keyword + ")\\1+";
+        String target = test.replaceAll(regex, "$1");
+        System.out.println(target);
     }
 
 }
