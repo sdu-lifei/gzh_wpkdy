@@ -101,23 +101,25 @@ public class SearchServiceImpl {
     }
 
     public static String getDirectUrl(String keyword, List<FolderRes> elements) {
-        StringBuilder resStr = new StringBuilder(resp_head + "包含[" + keyword + "]的资源：");
+        StringBuilder resultStr = new StringBuilder(resp_head + "包含[" + keyword + "]的资源：");
         log.debug("searching keyword: {}", keyword);
         int count = 0;
         for (FolderRes element : elements) {
             if (count >= res_limit) break;
             // add the new url
-            if (element.getPage_url().contains("aliyundrive") && !resStr.toString().contains(element.getPage_url())) {
+            String resUrl = element.getPage_url();
+            String resID = resUrl.substring(resUrl.lastIndexOf("/") + 1);
+            if (resUrl.contains("aliyundrive") && !resultStr.toString().contains(resID)) {
                 count++;
-                resStr.append(getPath(element.getPath(), keyword)).append(":").append(element.getPage_url()).append(lineSp);
+                resultStr.append(getPath(element.getPath(), keyword)).append(":").append(element.getPage_url()).append(lineSp);
             }
         }
 
         if (count == 0) return null;
         // add to cache
-        resCache.put(keyword, resStr.toString());
+        resCache.put(keyword, resultStr.toString());
         // response
-        return resStr.toString();
+        return resultStr.toString();
     }
 
     public static boolean isValid(String resUrl) {
@@ -156,7 +158,8 @@ public class SearchServiceImpl {
     public static String getPath(String initialPath, String keyword) {
         String regex = "(" + keyword + ")\\1+";
         String deduplicate = initialPath.replaceAll(regex, "$1");
-        return StringEscapeUtils.escapeHtml4(deduplicate);
+        // 如果过长就返回查询的关键字
+        return StringEscapeUtils.escapeHtml4(deduplicate.length() > 30 ? keyword : deduplicate);
     }
 
     public static String getResFromWeb(String keyword) {
@@ -286,8 +289,8 @@ public class SearchServiceImpl {
 //        final Base64.Decoder decoder = Base64.getDecoder();
 //        System.out.println("decode:"+new String(decoder.decode(document.text()), StandardCharsets.UTF_8));
 //        Elements resList = document.select("div.main-info > h1 > a");
-        String test = "我在看狂飙狂飙狂飙 狂飙狂飙 狂飙狂飙狂飙狂飙狂飙 哈哈".trim();
-        System.out.println(org.apache.commons.lang3.StringUtils.deleteWhitespace(test));
+        String test = "https://www.aliyundrive.com/s/seSdtWsrQdk/folder/63e2259a57e4df254e00458bbdc676ace2ea49fb";
+        System.out.println(test.substring(test.lastIndexOf("/") + 1));
         String keyword = "狂飙";
         String regex = "(" + keyword + ")\\1+";
         String target = test.replaceAll(regex, "$1");
