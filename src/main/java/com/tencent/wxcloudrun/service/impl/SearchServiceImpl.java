@@ -66,8 +66,9 @@ public class SearchServiceImpl {
 
     public static String searchByKeyword(String keyword) {
         // 获取value的值，如果key不存在，调用collable方法获取value值加载到key中再返回
-        String res = resCache.getIfPresent(keyword);
-        return StringUtils.isEmpty(res) ? getResFromWeb(keyword) : res;
+        String noSpaceKeyWord = org.apache.commons.lang3.StringUtils.deleteWhitespace(keyword);
+        String res = resCache.getIfPresent(noSpaceKeyWord);
+        return StringUtils.isEmpty(res) ? getResFromWeb(noSpaceKeyWord) : res;
 
     }
 
@@ -284,7 +285,8 @@ public class SearchServiceImpl {
 //        final Base64.Decoder decoder = Base64.getDecoder();
 //        System.out.println("decode:"+new String(decoder.decode(document.text()), StandardCharsets.UTF_8));
 //        Elements resList = document.select("div.main-info > h1 > a");
-        String test = "我在看狂飙狂飙狂飙狂飙狂飙狂飙狂飙狂飙狂飙狂飙哈哈";
+        String test = "我在看狂飙狂飙狂飙 狂飙狂飙 狂飙狂飙狂飙狂飙狂飙 哈哈".trim();
+        System.out.println(org.apache.commons.lang3.StringUtils.deleteWhitespace(test));
         String keyword = "狂飙";
         String regex = "(" + keyword + ")\\1+";
         String target = test.replaceAll(regex, "$1");
