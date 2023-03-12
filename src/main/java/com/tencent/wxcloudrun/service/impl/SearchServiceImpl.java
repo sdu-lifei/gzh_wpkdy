@@ -66,6 +66,7 @@ public class SearchServiceImpl {
 
     public static String searchByKeyword(String keyword) {
         // 获取value的值，如果key不存在，调用collable方法获取value值加载到key中再返回
+        // 删除关键词中的空格
         String noSpaceKeyWord = org.apache.commons.lang3.StringUtils.deleteWhitespace(keyword);
         String res = resCache.getIfPresent(noSpaceKeyWord);
         return StringUtils.isEmpty(res) ? getResFromWeb(noSpaceKeyWord) : res;
