@@ -54,6 +54,11 @@ public class aotuReplyController {
         return autoResponse(msg);
     }
 
+    @PostMapping(value = "/wx/welcome", consumes = {MediaType.TEXT_XML_VALUE}, produces = {MediaType.TEXT_XML_VALUE})
+    public String welcome(HttpServletRequest request) {
+        return "success";
+    }
+
     public WxXmlData resolveXmlData(InputStream in) throws IOException {
         StringWriter sw = new StringWriter();
         IOUtils.copy(in, sw, StandardCharsets.UTF_8);
