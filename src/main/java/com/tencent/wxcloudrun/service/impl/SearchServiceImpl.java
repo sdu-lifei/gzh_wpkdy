@@ -30,7 +30,7 @@ public class SearchServiceImpl {
 
     static int time_out = 4000;
 
-    static String def_mv = "电影仓：https://www.aliyundrive.com/s/u9BAWCEZqHi/folder/625154d1bd111a6b52bc4dc6bdb4aa8351efcffd";
+    static String def_mv = "电影仓：https://www.aliyundrive.com/s/tBiAuhLpanb";
     static String def_ds = "电视剧仓：https://www.aliyundrive.com/s/BjzGgQ4QLTd/folder/6242a5ca02dcaa56224d464d8980789e98a42b67";
 
     static String res_hongbao = "";
