@@ -7,10 +7,7 @@ import com.thoughtworks.xstream.security.AnyTypePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -54,8 +51,8 @@ public class aotuReplyController {
         return autoResponse(msg);
     }
 
-    @PostMapping(value = "/wx/welcome", consumes = {MediaType.TEXT_XML_VALUE}, produces = {MediaType.TEXT_XML_VALUE})
-    public String welcome(HttpServletRequest request) {
+    @PostMapping(value = "/wx/welcome")
+    public String welcome(@RequestBody WxXmlData request) {
         return "success";
     }
 
