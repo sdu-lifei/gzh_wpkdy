@@ -45,10 +45,9 @@ public class SearchServiceImpl {
             + System.lineSeparator() + def_ds
             + System.lineSeparator() + nores_hongbao;
 
-    static String base_url = "https://api.upyunso2.com/";
+    static String base_url = "https://upapi.juapp9.com/";
 
-    static String start_url = "https://api.upyunso2.com/search?page=1&s_type=2&keyword=";
-
+    static String start_url = "https://upapi.juapp9.com/search?page=1&s_type=2&from=1&keyword=";
     static int res_limit = 10;
 
     static String lineSp = System.lineSeparator();
@@ -105,7 +104,9 @@ public class SearchServiceImpl {
         log.debug("searching keyword: {}", keyword);
         int count = 0;
         for (FolderRes element : elements) {
-            if (count >= res_limit) break;
+            if (count >= res_limit) {
+                break;
+            }
             // add the new url
             String resUrl = element.getPage_url();
             String resID = resUrl.substring(resUrl.lastIndexOf("/") + 1);
@@ -115,7 +116,9 @@ public class SearchServiceImpl {
             }
         }
 
-        if (count == 0) return null;
+        if (count == 0) {
+            return null;
+        }
         // add to cache
         resCache.put(keyword, resultStr.toString());
         // response

@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.controller;
 
+import com.tencent.wxcloudrun.dto.MsgRequest;
 import com.tencent.wxcloudrun.dto.WxXmlData;
 import com.tencent.wxcloudrun.service.impl.SearchServiceImpl;
 import com.thoughtworks.xstream.XStream;
@@ -52,8 +53,8 @@ public class aotuReplyController {
     }
 
     @PostMapping(value = "/wx/welcome")
-    public String welcome(@RequestBody WxXmlData request) {
-        return "success";
+    public MsgRequest welcome(@RequestBody MsgRequest request) {
+        return msgResponse(request);
     }
 
     public WxXmlData resolveXmlData(InputStream in) throws IOException {
@@ -96,4 +97,24 @@ public class aotuReplyController {
         xstream.setClassLoader(WxXmlData.class.getClassLoader());
         return xstream.toXML(resultXmlData);
     }
+
+
+    public MsgRequest msgResponse(MsgRequest wxData) {
+        MsgRequest resultXmlData = new MsgRequest();
+        resultXmlData.setToUserName(wxData.getFromUserName());  //收到的消息是谁发来的再发给谁
+        resultXmlData.setFromUserName(wxData.getToUserName());  //
+        resultXmlData.setMsgType("text");
+        resultXmlData.setCreateTime(System.currentTimeMillis());
+        String content = "不好意思，小盘现在有点儿忙，请您稍后再试，^_^";
+        try {
+            log.info("search by {}", wxData);
+            content = SearchServiceImpl.searchByKeyword(wxData.getContent());
+        } catch (Exception e) {
+            log.error("other error", e);
+        }
+
+        resultXmlData.setContent(content);
+        return resultXmlData;
+    }
+
 }
